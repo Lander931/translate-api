@@ -20,6 +20,11 @@ class Translator
     protected $key;
 
     /**
+     * @var array
+     */
+    protected $proxy;
+
+    /**
      * @var resource
      */
     protected $handler;
@@ -28,12 +33,22 @@ class Translator
      * @link http://api.yandex.com/key/keyslist.xml Get a free API key on this page.
      *
      * @param string $key The API key
+     * @param array $proxy
      */
-    public function __construct($key)
+    public function __construct($key, $proxy = [])
     {
         $this->key = $key;
+        $this->proxy = $proxy;
         $this->handler = curl_init();
         curl_setopt($this->handler, CURLOPT_RETURNTRANSFER, true);
+        if ($this->proxy) {
+            if (isset($this->proxy['host']) && isset($this->proxy['port'])){
+                curl_setopt($this->handler, CURLOPT_PROXY, $this->proxy['host'] . ':' . $this->proxy['port']);
+            }
+            if (isset($this->proxy['user']) && isset($this->proxy['password'])) {
+                curl_setopt($this->handler, CURLOPT_PROXYUSERPWD, $this->proxy['user'] . ':' . $this->proxy['password']);
+            }
+        }
     }
 
     /**
